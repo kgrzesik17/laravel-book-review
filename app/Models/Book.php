@@ -68,13 +68,13 @@ class Book extends Model
             ->minReviews(5);
     }
 
-    public function shopeHighestRatedLastMonth(Builder $query): Builder|QueryBuilder {
+    public function scopeHighestRatedLastMonth(Builder $query): Builder|QueryBuilder {
         return $query->highestRated(now()->subMonth(), now())
             ->popular(now()->subMonth(), now())
             ->minReviews(2);
     }
 
-    public function shopeHighestRatedLast6Months(Builder $query): Builder|QueryBuilder {
+    public function scopeHighestRatedLast6Months(Builder $query): Builder|QueryBuilder {
         return $query->highestRated(now()->subMonth(6), now())
             ->popular(now()->subMonth(6), now())
             ->minReviews(5);
