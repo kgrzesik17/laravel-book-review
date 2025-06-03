@@ -29,7 +29,7 @@ class BookController extends Controller
         // $books = $books->get();
 
         $cacheKey = 'books' . $filter . ':' . $title;  // make sure we don't get someone else's query
-        $books = Cache()->remember($cacheKey, 3600, fn() => $books->get());  // if a query is popular, it's already going to be cached
+        $books = Cache()->remember($cacheKey, 3600, fn() => $books->get());  // if a query is popular, it's going to be already cached
 
         return view('books.index', ['books' => $books]);
     }
@@ -53,14 +53,15 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $book)  // we're not caching the book. only the reviews
     {
-        return view(
-            'books.show',
-            ['book' => $book->load([
-                'reviews' => fn ($query) => $query->latest()
-            ])])
-            ;
+        $cacheKey = 'book:' . $book->id;
+
+        $book = cache()->remember($cacheKey, 3600, fn() => $book->load([
+            'reviews' => fn($query) => $query->latest()
+        ]));
+
+        return view('books.show', ['book' => $book]);
     }
 
     /**
