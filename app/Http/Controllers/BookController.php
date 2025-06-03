@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\models\Book;
@@ -23,7 +22,7 @@ class BookController extends Controller
             'popular_last_6months' => $books->popularLast6Months(),
             'highest_rated_last_month' => $books->highestRatedLastMonth(),
             'highest_rated_last_6months' => $books->highestRatedLast6Months(),
-            default => $books->latest()
+            default => $books->latest()->withAvgRating()->withReviewsCount()
         };
 
         // $books = $books->get();
@@ -53,13 +52,18 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)  // we're not caching the book. only the reviews
+    public function show(int $id)  // we're not caching the book. only the reviews
     {
-        $cacheKey = 'book:' . $book->id;
+        $cacheKey = 'book:' . $id;
 
-        $book = cache()->remember($cacheKey, 3600, fn() => $book->load([
-            'reviews' => fn($query) => $query->latest()
-        ]));
+        $book = cache()->remember(
+            $cacheKey,
+            3600,
+            fn() =>
+            Book::with([  // fetch relations together with a model at the same time
+                'reviews' => fn($query) => $query->latest()
+            ])->withAvgRating()->withReviewsCount()->findOrFail($id)
+        );
 
         return view('books.show', ['book' => $book]);
     }

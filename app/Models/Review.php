@@ -20,6 +20,5 @@ class Review extends Model
         // won't be updated on mass assignment or raw sql query or db transactions
         static::updated(fn(Review $review) => cache()->forget('book:' . $review->book_id));  // forget the cache whenever the specific review is updated
         static::deleted(fn(Review $review) => cache()->forget('book:' . $review->book_id));
-
     }
 }
