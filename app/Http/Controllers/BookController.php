@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -25,7 +26,10 @@ class BookController extends Controller
             default => $books->latest()
         };
 
-        $books = $books->get();
+        // $books = $books->get();
+
+        $cacheKey = 'books' . $filter . ':' . $title;  // make sure we don't get someone else's query
+        $books = Cache()->remember($cacheKey, 3600, fn() => $books->get());  // if a query is popular, it's already going to be cached
 
         return view('books.index', ['books' => $books]);
     }
