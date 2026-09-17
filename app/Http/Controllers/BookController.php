@@ -14,11 +14,23 @@ class BookController extends Controller
     {
         // find all the books containing keywords. localscope from the Book class
         $title = $request->input('title');
+        $filter = $request->input('filter', '');
 
         // run the function only if title is not null
         $books = Book::when($title, function($query, $title) {
             return $query->title($title);
-        })->get();
+        });
+
+        // works like a switch - takes $books we alredy have, and applies new filters to it depending on the request
+        $books = match($filter) {
+            'popular_last_month' => $books->popularLastMonth(),
+            'popular_last_6_months' => $books->popularLast6Months(),
+            'highest_rated_last_month' => $books->highestRatedLastMonth(),
+            'highest_rated_last_6_months' => $books->highestRatedLast6Months(),
+            default => $books->latest()
+        };
+
+        $books = $books->get();
 
         return view('books.index', ['books' => $books]);
     }
