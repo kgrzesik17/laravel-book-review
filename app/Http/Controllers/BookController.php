@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -9,9 +10,17 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // find all the books containing keywords. localscope from the Book class
+        $title = $request->input('title');
+
+        // run the function only if title is not null
+        $books = Book::when($title, function($query, $title) {
+            return $query->title($title);
+        })->get();
+
+        return view('books.index', ['books' => $books]);
     }
 
     /**
