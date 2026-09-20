@@ -16,7 +16,7 @@ class BookController extends Controller
         $title = $request->input('title');
         $filter = $request->input('filter', '');
 
-        // run the function only if title is not null
+    // run the function only if title is not null
         $books = Book::when($title, function($query, $title) {
             return $query->title($title);
         });
