@@ -35,12 +35,12 @@ class Book extends Model
 
     // sort the books by number of reviews
     public function scopePopular(Builder $query, $from = null, $to = null): Builder|QueryBuilder {
-        return $query->withReviewsCount()->orderBy('reviews_count', 'desc');
+        return $query->withReviewsCount($from, $to)->orderBy('reviews_count', 'desc');
     }
 
     // sort the books by average review rating
     public function scopeHighestRated(Builder $query, $from = null, $to = null): Builder|QueryBuilder {
-        return $query->withAvgRating()->orderBy('reviews_avg_rating', 'desc');
+        return $query->withAvgRating($from, $to)->orderBy('reviews_avg_rating', 'desc');
     }
 
     public function scopeMinReviews(Builder $query, int $minReviews): Builder|QueryBuilder {
@@ -49,7 +49,7 @@ class Book extends Model
 
     private function dateRangeFilter(Builder $query, $from = null, $to = null) {
         if ($from && !$to) {
-            $query->where('create_at', '>=', $from);
+            $query->where('created_at', '>=', $from);
         } elseif (!$from && $to) {
             $query->where('created_at', '<=', $to);
         } elseif ($from && $to) {
