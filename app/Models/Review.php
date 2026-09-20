@@ -14,4 +14,10 @@ class Review extends Model
     public function book() {
         return $this->belongsTo(Book::class);
     }
+
+    protected static function booted() {
+        // this wont work on mass assignment as mass assignment updates the database directly
+        static::updated(fn(Review $review) => cache()->forget('book:' . $review->book_id));
+        static::deleted(fn(Review $review) => cache()->forget('book:' . $review->book_id));
+    }
 }
